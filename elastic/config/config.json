@@ -1,7 +1,7 @@
 {
     "development" : {
         "protocol" : "http",
-        "host"     : "192.168.1.115",
+        "host"     : "localhost",
         "port"     : 9200,
         "auth"     : "elastic:changeme"
     },

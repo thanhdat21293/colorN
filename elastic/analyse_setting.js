@@ -1,6 +1,7 @@
 function config (){
      return {
 			"number_of_shards": 5,
+
 			"analysis" : {
 				"char_filter" : {
 					"&_to_and" : {
@@ -18,23 +19,19 @@ function config (){
 							"punctuation",
 							"symbol"
 						]
-					},
-					"my_stopwords" : {
-						"type" : "stop",
-						"stopwords" : ["the", "a", "are", "is"]
-				}},
+					}},
 				"analyzer" : {
 					"analyzer_for_index" : {
 						"type" 		  : "custom",
 						"char_filter" : [ "html_strip", "&_to_and" ],
 						"tokenizer"	  : "standard",
-						"filter"	  : [ 'lowercase', "my_stopwords", "my_filter", 'asciifolding' ]
+						"filter"	  : [ 'lowercase', "my_filter", 'asciifolding' ]
 					},
 					"analyzer_for_searching" : {
 						"type"	: "custom",
 						"char_filter" : [ "html_strip", "&_to_and" ],
 						"tokenizer"	  : "standard",
-						"filter"	  : [ 'lowercase', "my_stopwords"]	
+						"filter"	  : [ 'lowercase']	
 					}
 				}
 			}

@@ -11,10 +11,10 @@ class Collection {
     getAllCollection () {
         let that = this;
         return new Promise ( (resolve, reject) => {
-            elas.searchAll ( "icolor2", "collection" )
+            elas.searchAll ( "icolor", "collection" )
             .then ( (data) => {
-                async.map (data, that.getAuthor, (err, result) => {
-                    async.map (data, that.getLikeAndDislike, (err, result) => {
+                async.mapSeries (data, that.getAuthor, (err, result) => {
+                    async.mapSeries (data, that.getLikeAndDislike, (err, result) => {
                         resolve (result);
                     });
                 });
@@ -23,16 +23,19 @@ class Collection {
     }
 
     getAuthor (item, cb) {
-        elas.search ("icolor2", "users", item['id_user'])
+        elas.search ("icolor", "users", item['id_user'])
         .then ( (data) => {
-            item['author'] = data[0]['name'];
-            item['author_email'] = data[0]['email'];
+            item['author'] = data[0]['email'];
+            // item['author_email'] = data[0]['email'];
+            cb (null, item);
+        }, 
+        error => {
             cb (null, item);
         });
     }
 
     getLikeAndDislike (item, cb) {
-        elas.search ("icolor2", "like_dislike", item['id'])
+        elas.search ("icolor", "like_dislike", item['id'])
         .then ( (data) => {
             let like = data.filter( (obj) => {
                 return obj['status'] === "like";
@@ -41,13 +44,16 @@ class Collection {
             item['like'] = 0 || like;
             item['dislike'] = 0 || dislike;
             cb (null, item);
+        },
+        error => {
+            cb (null, item);
         });
     }
 
     getCollection (id) {
         let that = this;
         return new Promise ( (resolve, reject) => {
-            elas.search ("icolor2", "collection", id)
+            elas.search ("icolor", "collection", id)
             .then ( (data) => {
                 // ES search will return an array
                 that.getAuthor ( data[0] , (err, result) => {
@@ -58,14 +64,14 @@ class Collection {
     }
 
     getAllColor() {
-        return elas.searchAll ( "icolor2", "color" );
+        return elas.searchAll ( "icolor", "color" );
     }
 
     getColorRelated ( hex, id_parent ) {
         let that = this;
         return new Promise ( (resolve, reject) => {
             // Get all color related
-            elas.search ( "icolor2", "color_related", hex )
+            elas.search ( "icolor", "color_related", hex )
             .then (data => {
                 let n = data.length;
                 let arr_id_related = [];
@@ -76,16 +82,15 @@ class Collection {
                 arr_id_related = that.getIdRelated (sorted, hex);
                 that.getCollectionRelated (arr_id_related)
                 .then ( (data) => {
-                    let arr = [];
+                    let temp = [];
                     data.forEach ( (val) => {
                         val.forEach ( (item) => {
-                            console.log(item['id']);
-                            if ( item['id'] !== id_parent) {
-                                arr.push (item);
+                            if ( !that.isSameResult ( item['id'], id_parent, temp) ) {
+                                temp.push ( item );
                             }
                         });
                     });
-                    async.mapSeries ( arr, that.getAuthor, (err, result) => {
+                    async.mapSeries ( temp, that.getAuthor, (err, result) => {
                         resolve (result);
                     });
                 });
@@ -108,32 +113,110 @@ class Collection {
     getCollectionRelated ( colors ) {
         let that = this;
         return new Promise ( (resolve, reject) => {
-            async.map (colors, that.findCollection, (err, result) => {
+            async.mapSeries (colors, that.findCollection, (err, result) => {
                 resolve (result);
             });
         });
     }
 
     findCollection ( item, cb ) {
-        elas.search ( "icolor2", "collection", item)
+        elas.search ( "icolor", "collection", item)
         .then ( (data) => {
+            cb (null, data);
+        },
+        error => {
             cb (null, data);
         });
     }
 
-    addCollection( collection ) {
+    /*
+    * Param id : id cua pallet muon kiem tra
+    * Param id_parent : id cua pallet duoc tim kiem lien quan
+    * Param pallets : danh sach cac pallets lien quan lay ra duoc
+    * Return 'TRUE' : neu pallet can kiem tra da ton tai 
+    * Return 'FALSE' : neu pallet can kiem tra chua ton tai
+    */
+    //TODO : kiem tra Pallet hien tai co bi trung lap khong
+    isSameResult ( id, id_parent, pallets ) {
+        let tmp = pallets.find ( (element) => {
+                    return id === element['id']; 
+                  });
+        if ( !tmp && id !== id_parent ){
+            return false;
+        }
+        return true;
+    }
+
+    addCollection( userPallet ) {
         let that = this;
         return new Promise ( (resolve, reject) => {
-            elas.insertDocument ( "icolor2", "collection", collection )
-            .then (() => {
-                let arr = [collection['color1'], collection['color2'], collection['color3'], collection['color4'], collection['color5']];
-
-                that.addColor ( arr)
-                .then ( data => {
-                    resolve ( "Insert succeed" );
-                });
+            elas.searchAll ( "icolor", "collection" )
+            .then ( pallets => {
+                if ( that.isPalletExist ( pallets, userPallet ) ) {
+                    reject ( 'Pallet already existed' );
+                } else {
+                    elas.insertDocument ( "icolor", "collection", userPallet )
+                    .then (() => {
+                        let colors = that.getColorsInPallet ( userPallet );
+                        that.addColor ( colors )
+                        .then ( data => {
+                            resolve ( "Insert succeed" );
+                        },
+                        error => {
+                            resolve ( "Insert succeed" );
+                        });
+                    });
+                }
             });
         });
+    }
+
+    // TODO : Check if Pallet already existed in database
+    /* 
+    * Param allPallet  : Array contains all Pallets in database
+    * Param userPallet : New pallet to add to database  
+    * Return 'TRUE' if Pallet already existed 
+    * Return 'FALSE' if Pallet not existed , available to add to database
+    */
+
+    isPalletExist ( allPallet, userPallet ) {
+        let n = allPallet.length;
+        let pallet2 = this.getColorsInPallet ( userPallet );
+        for ( let i = 0; i < n; i++ ) {
+            let pallet1 = this.getColorsInPallet ( allPallet[i] );               
+            if ( this.isSamePallet ( pallet1, pallet2 ) ) { return true; }
+        }
+        return false;
+    }
+
+    // TODO : Check if two Pallet is the same
+    /* 
+    * Return 'TRUE' if two Pallets are the same 
+    * Return 'FALSE' if they are not same 
+    */
+
+    isSamePallet ( pallet1 , pallet2 ){
+        let n = pallet1.length;
+        for ( let i = 0; i < n; i++){
+            let flag = 0;
+            for ( let j = 0; j < n; j ++ ) {
+                if ( pallet2 [i] === pallet1 [j]) {
+                    flag++;
+                    break;
+                }
+            }
+            if ( !flag ) { return false; }
+        }
+        return true;
+    }
+
+    // TODO : Just get all colors of Pallet
+    getColorsInPallet ( pallet ){
+        return [ pallet['color1'],
+                pallet['color2'],
+                pallet['color3'],
+                pallet['color4'],
+                pallet['color5']];
     }
 
     addColor ( arrColor ) {
@@ -144,9 +227,12 @@ class Collection {
                 that.checkColorExist ( item )
                 .then (( data ) => {
                     cb ( null, data );
+                },
+                error => {
+                    cb (null, error);
                 });
             }
-            async.mapSeries ( arrColor, demo, ( err, result ) => {
+            async.eachSeries ( arrColor, demo, ( err, result ) => {
                 resolve ( result );
             });
         });
@@ -155,15 +241,15 @@ class Collection {
     checkColorExist ( color ) {   
         let that = this;
         return new Promise (( resolve, reject ) => {
-            elas.search ( "icolor2", "color", color )
+            elas.search ( "icolor", "color", color )
             .then (data => {
                 console.log(data.length);
                 if ( !data.length ) {
                     let temp = {
                         "id" : color
                     }
-                    elas.insertDocument ( "icolor2", "color", temp )
-                    .then (data =>{
+                    elas.insertDocument ( "icolor", "color", temp )
+                    .then ( data => {
                         that.findColorSimilar ( color )
                         .then ( data => {
                             resolve ( data );
@@ -177,12 +263,12 @@ class Collection {
     }
 
     findColorSimilar ( color1 ) {
+        let that = this;
         return new Promise (( resolve, reject ) => {
-            this.getAllColor ()
+            that.getAllColor ()
             .then (data => {
                 data.forEach( ( color2 ) => {
                         let temp1 = {};
-                        let temp2 = {};
                         let lab1 = convert.hex.lab ( color1 );
                         let lab2 = convert.hex.lab ( color2['id'] );
                         let distance = core.DeltaECIE ( lab1, lab2 );
@@ -191,7 +277,7 @@ class Collection {
                         temp1['id_related'] = color2 ['id'];
                         temp1['_score'] = distance;
 
-                        elas.insertDocument ( "icolor2", "color_related", temp1 ).then (()=>{
+                        elas.insertDocument ( "icolor", "color_related", temp1 ).then (()=>{
                             resolve ( "OK" );
                         });
                 });

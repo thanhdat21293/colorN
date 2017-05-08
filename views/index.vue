@@ -1,19 +1,20 @@
 <template>
 	<div class="container">
+        <myheader></myheader>
 		<div class="row">
-			<headerhome></headerhome>
 			<div id="container-color" v-if="dt">
 				<div class="item" v-for="i in dt">
-					<div class="item_inner moredetail" :data-slug="i.name">
+					<div class="item_inner moredetail">
                         <div class="box-info col-sm-4">
                             <div class="row">
-                                <div class="box-name" :data-slug="i.name">{{ i.name }}</div>
+                                <div class="box-name">{{ i.name }}</div>
                                 <!--<div class="box-date"><i class="fa fa-calendar" aria-hidden="true"></i>{{ i.date }}</div>-->
-                                <div class="box-author" :data-slug="i.name">
+                                <div class="box-author">
                                     <i class="fa fa-user" aria-hidden="true"></i> {{ i.author }} 
                                     <!--<i class="fa fa-envelope-o" aria-hidden="true"></i> {{ i.author_email }} -->
                                 </div>
-                                <!--<div class="box-like-dislike-share" :data-slug="i.name">
+                                <a class="more_detail" :href="'/detail/' + i.id">More Detail</a>
+                                <!--<div class="box-like-dislike-share">
                                     <span class="box-like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{ i.like }}</span>
                                     <span class="box-dislike"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> {{ i.dislike }}</span>
                                     <span class="share"> <i class="fa fa-share-alt" aria-hidden="true"></i>{{ i.share }}</span>
@@ -31,7 +32,7 @@
                                 </div>
 							</div>
                         <!-- footer -->
-                        <footeritem :collection="i"></footeritem>
+                        <!--<footeritem :collection="i"></footeritem>-->
 					</div>
 				</div>
 			</div>
@@ -49,6 +50,9 @@
         },
         ready() {
             new Clipboard('.colors');
+            $(".colors").hover ( function () {
+                $('.myclipboard', this).toggleClass ('clipboard_show');
+            });
         },
     }
 </script>

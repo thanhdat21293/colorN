@@ -8,7 +8,6 @@
     margin-left : 15px;
     border-bottom: solid 1px #e0e0e0;
     overflow: hidden;
-    cursor: pointer;
 }
 
 .footer_show {
@@ -24,6 +23,7 @@
     height: 120px;
     display: block;
     float: left;
+    cursor: pointer;
 }
 
 .box-colors {
@@ -32,8 +32,23 @@
     border: 1px solid lightgray;
 }
 
+.modal-dialog {
+    width: 100%;
+}
+
 .box-info {
     padding-left: 10%;
+}
+
+.more_detail {
+    color : #337ab7;
+    text-decoration : none !important;
+    font-size : 15.5px;
+    cursor: pointer;
+}
+
+.more_detail:hover {
+    color : #337ab7;
 }
 
 .box-info .row > div{

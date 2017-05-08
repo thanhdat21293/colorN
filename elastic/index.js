@@ -31,13 +31,10 @@ class elastic {
 			this.elas.index ({
 				index : index,
 				type  : type,
-				body : doc
+				body : doc,
+				refresh : "wait_for"
 			}, ( err, resp, status ) => {
-				if (err) {
-					reject (err.message);
-				} else{
-					resolve (resp)
-				}
+				resolve (resp)
 			});
 		});
 	}
@@ -78,7 +75,7 @@ class elastic {
 	}
 
 	searchAll ( index, type ) {
-		return new Promise( ( resolve, reject ) => {
+		return new Promise ( ( resolve, reject ) => {
 			this.elas.search ({
 				index : index,
 				type : type,
@@ -147,7 +144,7 @@ class elastic {
 			case "color" :
 				return [ "id"];
 			case "color_related" :
-				return [ "id" ];
+				return [ "id", "id_related" ];
 			default :
 				return [];
 		}

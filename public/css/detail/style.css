@@ -12,6 +12,10 @@ body {
     margin-bottom: 10px;
 }
 
+.modal-dialog {
+    width: 100%;
+}
+
 .name{
     font-weight: bold;
     font-size: 32px;

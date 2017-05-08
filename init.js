@@ -9,10 +9,10 @@ const shortid = require("shortid");
 const data = require("./data.json");
 const async = require("async");
 const coll = require("./models/collection");
-const elas2 = require("./elastic/connect");
+const bcrypt = require('bcryptjs');
 //Create Index
 function createIndex () {
-    elas.createIndex("icolor2",(err,stt)=>{
+    elas.createIndex("icolor",(err,stt)=>{
         if (err) {
             console.log(err);
         } else {
@@ -20,16 +20,16 @@ function createIndex () {
         }
     });
 }
- //createIndex();
+// createIndex();
 
 //Delete Index
 function deleteIndex () {
-    elas.deleteIndex("icolor2",(err, stt)=>{
+    elas.deleteIndex("icolor",(err, stt)=>{
         if (err) console.log(err);
         else console.log(stt);
     });
 }
- //deleteIndex();
+// deleteIndex();
 
 // Merge Data into ElasticSearch
 function initData() {
@@ -54,37 +54,45 @@ function initData() {
         data[count].share = 0;
         colors.push(data[count]);
     }
-    let cutarr = colors.slice (0,50);
-    async.mapSeries(colors, merge, (err, rs) => {
+    let cutarr = colors.slice (0,5);
+    async.mapSeries (colors, merge, (err, rs) => {
         console.log("Completed All");
     });
 }
 
-initData();
+// initData();
 
 function merge(item, cb){
     coll.addCollection(item)
     .then (data => {
         console.log(data);
         cb(null,data);
+    },
+    error => {
+        console.log(error);
+        cb (null, error);
     });
 }
 
 // Add add Author
 let author = {
-    "id" :  shortid.generate(),
-    "name" : "bluevn",
+    "id" :  'rJBkgtYyb',
+    // "name" : "The Shepherd's Man",
     "email" : "blueevn@gmail.com",
-    "password" : "secret",
-    "description" : "Nodejs programmer",
-    "website" : "https://www.icolor2.com",
+    "password" : "123",
+    // "description" : "Nodejs programmer",
+    // "website" : "https://www.icolor.com",
     "data" :  moment().format("DD/MM/YYYY")
 }
 
 function addAuthor (author){
-    elas.insertDocument ("icolor2", "users", author)
-    .then ((data) => {
-        console.log(data);
+    bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(author['password'], salt, function(err, hash) {
+            elas.insertDocument ("icolor", "users", author)
+            .then ((data) => {
+                console.log(data);
+            });
+        });
     });
 }
 // addAuthor(author);
@@ -92,28 +100,31 @@ function addAuthor (author){
 let collection = {
     id: shortid.generate(),
     name: "The Shepherd's Boy",
-    color1: '#8FBE00',
-    color2: '#F02475',
-    color3: '#CFBE27',
-    color4: '#33605A',
-    color5: '#CFBE27',
+    color1: '#FE4365',
+    color2: '#036564',
+    color3: '#B38184',
+    color4: '#F77825',
+    color5: '#E6AC27',
     date: moment().format("DD/MM/YYYY"),
     description: 'Pro color',
-    id_user: 'B18e7GP1W',
+    id_user: 'rJBkgtYyb',
     share: 0
 }
 
-function addCollection (collection){
+function addCollection2 (collection){
     coll.addCollection(collection)
     .then (data => {
         console.log(data);
+    },
+    error => {
+        console.log (error);
     });
 }
-// addCollection(collection);
+// addCollection2(collection);
 
 
 function deleteDocument (){
-    elas.deleteDocument ("icolor2","collection", "B1xX6bwd1W")
+    elas.deleteDocument ("icolor","users", "rJBkgtYyb")
     .then ( data => {
         console.log (data);
     }, 
@@ -132,7 +143,7 @@ let like = {
 }
 
 function addLike () {
-    elas.insertDocument ("icolor2", "like_dislike", like)
+    elas.insertDocument ("icolor", "like_dislike", like)
     .then ((data) => {
         console.log(data);
     });
@@ -140,12 +151,14 @@ function addLike () {
 // addLike();
 
 // Search ALl for test
- //elas.searchAll("icolor2","color")
- //.then (data => {
- //    console.log(data);
- //});
-
-// elas.search("icolor2","collection", '#FE4365')
+function searchAll (){
+	elas.searchAll("icolor","users")
+ .then (data => {
+     console.log(data);
+ });
+}
+searchAll(); 
+// elas.search("icolor","collection", '#FE4365')
 // .then (data => {
 //     console.log(data);
 // });
