@@ -16,8 +16,10 @@
     "express": "^4.15.2",
     "express-session": "^1.15.2",
     "express-vue": "^3.9.11",
+    "jsonwebtoken": "^7.4.0",
     "moment": "^2.18.1",
     "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1",
     "passport-local": "^1.0.0",
     "shortid": "^2.2.8"
   }

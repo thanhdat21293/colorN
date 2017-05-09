@@ -14,13 +14,14 @@
                                 </div>
                                 <div class="panel-body">
                                     <form action="/login" method="post" name="Login_Form" class="form-signin">
+                                        <span id="login_status"></span>
                                         <div class="form-group">
-                                            <input type="email" class="form-control" name="email" placeholder="Email" required="" autofocus="" />
+                                            <input type="email" class="form-control" id="login_email" name="login_email" placeholder="Email" required="" autofocus="" />
                                         </div>
                                         <div class="form-group">
-                                            <input type="password" class="form-control" name="password" placeholder="Password" required=""/>     		  
+                                            <input type="password" class="form-control" id="login_password" name="login_password" placeholder="Password" required=""/>     		  
                                         </div>
-                                        <button class="btn btn-lg btn-primary btn-block"  name="Submit" value="Login" type="Submit">Login</button>  			
+                                        <button class="btn btn-lg btn-primary btn-block" v-on:click="login()" name="Submit" value="Login" >Login</button>  			
                                     </form>
                                 </div>
                             </div>
@@ -59,3 +60,40 @@
         </div>
     </div>
 </template>
+<script>
+    // Vue
+    export default {
+        data() {
+            return {
+                user: {}
+            }
+        },
+        methods : {
+            login() {
+                axios.post('/login', {
+                        email: $("#login_email").val(),
+                        password: $("#login_password").val(),
+                    })
+                    .then(response => {
+                        let result = response.data;
+                        console.log(result);
+                        if ( result['err'] ) {
+                            $("#login_status").text (result.error);
+                            $("#login_status").css ('color','red');
+                        } else {
+                            this.user = result.user;
+                            console.log(result);
+                        }
+                    })
+                    .catch(error => {
+                        this.user = {};
+                    });
+            },
+            register () {
+
+            }
+        }
+    }
+</script>
+
+                         

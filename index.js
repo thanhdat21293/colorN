@@ -5,9 +5,17 @@ const bodyParser = require ("body-parser");
 const path = require ('path');
 const async = require ('async');
 const elas = require ("./elastic/index");
-
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
 const passport = require('passport');
+const passportJWT = require("passport-jwt");
+
+const ExtractJwt = passportJWT.ExtractJwt;
+const JwtStrategy = passportJWT.Strategy;
+
+let jwtOptions = {
+  jwtFromRequest : ExtractJwt.fromAuthHeader(),
+    secretOrKey : 'vequelamvuon'
+}
 
 app.use ('/public', express.static ('public'))
 
@@ -28,24 +36,25 @@ app.use (bodyParser.urlencoded ({
 
 app.use (bodyParser.json());
 
-app.use(session({
-    //set cookie expiration in ms
-	//cookie: { maxAge: (2000*3000) },
-  secret : "secret",
-  unset: 'destroy',
-  saveUninitialized: false,
-  resave: false
-}));
+const strategy = new JwtStrategy(jwtOptions, (jwt_payload, next) => {
+  console.log('payload received', jwt_payload);
+  // usually this would be a database call:
+  const user = users[_.findIndex(users, {id: jwt_payload.id})];
+  if (user) {
+    next(null, user);
+  } else {
+    next(null, false);
+  }
+});
 
+
+passport.use(strategy);
 app.use(passport.initialize());
-app.use(passport.session());
 
-//------------passport --------------------
-require('./models/passport')(passport);
 
 //------------Set up router --------------------
 require('./router/router')(app, passport);
 
-app.listen(3000, () => {
-	console.log('Express server listening on port 3000');
-});
+  app.listen(3000, () => {
+    console.log("Express running at port 3000");
+  });

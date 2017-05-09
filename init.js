@@ -88,6 +88,7 @@ let author = {
 function addAuthor (author){
     bcrypt.genSalt(10, function(err, salt) {
         bcrypt.hash(author['password'], salt, function(err, hash) {
+            author['password'] = hash;
             elas.insertDocument ("icolor", "users", author)
             .then ((data) => {
                 console.log(data);
@@ -157,10 +158,25 @@ function searchAll (){
      console.log(data);
  });
 }
-searchAll(); 
-// elas.search("icolor","collection", '#FE4365')
+// searchAll(); 
+
+// elas.search("icolor","users", 'blueeasd222@gmail.com')
 // .then (data => {
 //     console.log(data);
+// },
+// error => {
+//     console.log('cc');
+//     console.log(error);
 // });
+// let email = 'blueeasd222@gmail.com';
+// elas.search ( 'icolor', 'users', email)
+//             .then ( user => {
+//                 console.log("abdsadc-");
+//                    console.log(user);
+//                 },
+//                 err => {
+//                     console.log("abc-");
+//                     console.log(err);
+//                 });
 
 

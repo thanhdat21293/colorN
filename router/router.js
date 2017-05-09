@@ -1,5 +1,7 @@
 const collection = require ('../models/collection');
 const account = require ('../models/register');
+const auth = require('../passport/passport');
+
 
 module.exports = function (app, passport) {
 
@@ -76,24 +78,30 @@ module.exports = function (app, passport) {
         res.redirect('/');
     });
 
-    app.get ('/login', (req, res) => {
+
+    app.post("/login", (req, res) => {
+        let email;
+        let password;
         let status = {};
-        if ( req.isAuthenticated() ) {
-            status = {
-                'user' : req.user
-            };     
+        if (req.body.email && req.body.password) {
+            email = req.body.email;
+            password = req.body.password;
         }
-        if ( req.isUnauthenticated() ) {
-            status = {
-                'error' : 'Email or password is not correct'
-            };
-        }
-        res.json (status);
+        // usually this would be a database call:
+        console.log(email);
+        auth.authLogin ( email, password )
+        .then ( result => {
+          console.log('status');
+            // console.log(status);
+            res.json(result);
+        })
+        // error => {
+        //     status = error;
+        // });
+        
+        .catch (error => {
+            // res.json ( error );
+            console.log('asd');
+        }); 
     });
-
-    app.post ("/login", passport.authenticate('local',{
-        successRedirect: '/login',
-        failureRedirect: '/login'
-    }));
-
 }
