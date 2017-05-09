@@ -1,23 +1,22 @@
 $( function(){
-    //Toggle show/hide detail
-    // $( ".moredetail, .box-author, .box-name, .box-like-dislike-share" ).click ( function (e) {
-    //     if (e.target !== this) {
-    //         return;
-    //     }
-    //     let slug = $(this).data('slug');
-    //     $(`.item_inner[data-slug="${slug}"] > .footer`).toggleClass ('footer_show');
-    // });
+    //setup before functions
+    let typingTimer;                //timer identifier
+    let doneTypingInterval = 500;  //time in ms, 5 second for example
+    let $input = $('#searchterm');
 
-    // $('.footer').click( function (e){
-    //     if (e.target !== this) {
-    //         return;
-    //     }
-    //     $(this).toggleClass ('footer_show');
-    // });
-
-    //Toggle show/hide clipboard
-    $(".colors").hover ( function () {
-        console.log('asd');
-        $('.myclipboard', this).toggleClass ('clipboard_show');
+    //on keyup, start the countdown
+    $input.on('keyup', function () {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(doneTyping, doneTypingInterval);
     });
+
+    //on keydown, clear the countdown 
+    $input.on('keydown', function () {
+    clearTimeout(typingTimer);
+    });
+
+    //user is "finished typing," do something
+    function doneTyping () {
+    search();
+    }
 });

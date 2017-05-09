@@ -6,6 +6,7 @@ const auth = require('../passport/passport');
 module.exports = function (app, passport) {
 
     app.get ('/', (req, res) => {
+        console.log('Passhere');
     collection.getAllCollection ()
         .then (data => {
             res.render ('index', {
@@ -14,13 +15,21 @@ module.exports = function (app, passport) {
                     head: {
                         title: 'Color Pro',
                         meta: [
-                            // { script: '/public/js/home/script.js' },
+                            { script: '/public/js/home/script.js' },
                             { style: '/public/css/home/style.css',type: 'text/css',rel: 'stylesheet' }
                             ],
                         },
                     components: ['myheader']
                 }
             });
+        });
+    });
+
+    app.get ('/search', ( req, res ) => {
+        let term = req.query['q'];
+        collection.searchCollection (term)
+        .then (data => {
+            res.json(data);
         });
     });
 

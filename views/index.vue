@@ -1,6 +1,6 @@
 <template>
 	<div class="container">
-        <myheader></myheader>
+        <myheader :user="user" :login="login" :search="search" :logout="logout" :register="register" ></myheader>
 		<div class="row">
 			<div id="container-color" v-if="dt">
 				<div class="item" v-for="i in dt">
@@ -45,7 +45,45 @@
     export default {
         data() {
             return {
-                dt: []
+                dt: [],
+                user : {}
+            }
+        },
+        methods : {
+            login() {
+	            axios.post('/login', {
+	                    email: $("#login_email").val(),
+	                    password: $("#login_password").val(),
+	                })
+	                .then(response => {
+	                    let result = response.data;
+	                    console.log(result);
+	                    if ( result['err'] ) {
+	                        $("#login_status").text (result.error);
+	                        $("#login_status").css ('color','red');
+	                    } else {
+	                        this.user = result.user;
+	                        console.log(result);
+	                    }
+	                })
+	                .catch(error => {
+	                    this.user = {};
+	                });
+	        },
+	        register () {
+	
+	        },
+            logout () {
+            },
+            search () {
+                let term = $("#searchterm").val();
+                axios.get( `/search?q=${term}`)
+                .then (response => {
+                    this.dt = response.data;
+                })
+                .catch ( error => {
+                    this.dt = [];
+                });
             }
         },
         ready() {

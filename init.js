@@ -153,12 +153,12 @@ function addLike () {
 
 // Search ALl for test
 function searchAll (){
-	elas.searchAll("icolor","users")
+	elas.searchAll("icolor","collection")
  .then (data => {
-     console.log(data);
+     console.log(data.length);
  });
 }
-// searchAll(); 
+searchAll(); 
 
 // elas.search("icolor","users", 'blueeasd222@gmail.com')
 // .then (data => {
@@ -169,13 +169,11 @@ function searchAll (){
 //     console.log(error);
 // });
 // let email = 'blueeasd222@gmail.com';
-// elas.search ( 'icolor', 'users', email)
+// elas.search ( 'icolor', 'collection', 'terr')
 //             .then ( user => {
-//                 console.log("abdsadc-");
 //                    console.log(user);
 //                 },
 //                 err => {
-//                     console.log("abc-");
 //                     console.log(err);
 //                 });
 

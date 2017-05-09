@@ -63,6 +63,20 @@ class Collection {
         });
     }
 
+    searchCollection ( term ) {
+        let that = this;
+        return new Promise ( (resolve, reject) => {
+            elas.search ("icolor", "collection", term)
+            .then ( data => {
+                async.mapSeries (data, that.getAuthor, (err, result) => {
+                    async.mapSeries (data, that.getLikeAndDislike, (err, result) => {
+                        resolve (result);
+                    });
+                });
+            });
+        });
+    }
+
     getAllColor() {
         return elas.searchAll ( "icolor", "color" );
     }
