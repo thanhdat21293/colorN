@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div id="container-color" v-if="collection" class="container">
-			<myheader></myheader>
+			<myheader :user="user" :login="login" :logout="logout" :searchable="searchable" :register="register"></myheader>
 			<div class="row">
 				<div class="col-sm-2 info">
 					<div class="footer"><span><h3>{{collection.name}}</h3></span></div>
@@ -31,7 +31,9 @@
         data() {
             return {
 				collection : {},
-                related_collection : []
+                related_collection : [],
+				user : {},
+				searchable : false
             }
         },
         methods : {
@@ -44,6 +46,32 @@
                         .catch(error => {
                             this.related_collection = [];
                         }); 
+            },
+			login() {
+	            axios.post('/login', {
+	                    email: $("#login_email").val(),
+	                    password: $("#login_password").val(),
+	                })
+	                .then(response => {
+	                    let result = response.data;
+	                    console.log(result);
+	                    if ( result['err'] ) {
+	                        $("#login_status").text (result.error);
+	                        $("#login_status").css ('color','red');
+	                    } else {
+	                        this.user = result.user;
+	                        console.log(result);
+	                    }
+	                })
+	                .catch(error => {
+	                    this.user = {};
+	                });
+	        },
+	        register () {
+                console.log("abc");
+	        },
+            logout () {
+                this.register();
             }
         },
         ready() {

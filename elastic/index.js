@@ -120,6 +120,7 @@ class elastic {
 				}
 			}, (error, response, status) => {
 				if (error) {
+					console.log(error);
 					reject ( error.message );
 				} else {
 					let products = [];

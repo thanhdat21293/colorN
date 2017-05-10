@@ -1,6 +1,6 @@
 <template>
 	<div class="container">
-        <myheader :user="user" :login="login" :search="search" :logout="logout" :register="register" ></myheader>
+        <myheader :islogin="islogin" :update="update" :user="user" :onup="onup" :ondown="ondown" :search="search" :searchable="searchable" :logout="logout" :register="register" ></myheader>
 		<div class="row">
 			<div id="container-color" v-if="dt">
 				<div class="item" v-for="i in dt">
@@ -46,38 +46,42 @@
         data() {
             return {
                 dt: [],
-                user : {}
+                user : {},
+                'searchable' : true,
+                typingTimer : '',                //timer identifier
+                doneTypingInterval : 100,  //time in ms, 5 second for example
+                islogin : false
             }
         },
         methods : {
-            login() {
-	            axios.post('/login', {
-	                    email: $("#login_email").val(),
-	                    password: $("#login_password").val(),
-	                })
-	                .then(response => {
-	                    let result = response.data;
-	                    console.log(result);
-	                    if ( result['err'] ) {
-	                        $("#login_status").text (result.error);
-	                        $("#login_status").css ('color','red');
-	                    } else {
-	                        this.user = result.user;
-	                        console.log(result);
-	                    }
-	                })
-	                .catch(error => {
-	                    this.user = {};
-	                });
-	        },
+            update ( islogin, email, token) {
+                this.islogin = islogin;
+                this.user.email = email;
+                localStorage.setItem("token", token);
+            },
 	        register () {
-	
 	        },
             logout () {
             },
+            onup () {
+                clearTimeout(this.typingTimer);
+                this.typingTimer = setTimeout(this.done, this.doneTypingInterval);
+            },
+            ondown () {
+                clearTimeout(this.typingTimer);
+            },
+            done () {
+                this.search();
+            },
             search () {
-                let term = $("#searchterm").val();
-                axios.get( `/search?q=${term}`)
+                let url = '';
+                if ( $("#searchterm").val() ) {
+                    let temp = $("#searchterm").val();
+                    url = `/search/notall/${temp}`;
+                } else {
+                    url = `/search/all/searchall`;
+                }
+                axios.get( url )
                 .then (response => {
                     this.dt = response.data;
                 })

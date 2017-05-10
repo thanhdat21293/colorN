@@ -6,8 +6,7 @@ const auth = require('../passport/passport');
 module.exports = function (app, passport) {
 
     app.get ('/', (req, res) => {
-        console.log('Passhere');
-    collection.getAllCollection ()
+        collection.getAllCollection ()
         .then (data => {
             res.render ('index', {
                 data: { dt: data },
@@ -15,7 +14,7 @@ module.exports = function (app, passport) {
                     head: {
                         title: 'Color Pro',
                         meta: [
-                            { script: '/public/js/home/script.js' },
+                            // { script: '/public/js/home/script.js' },
                             { style: '/public/css/home/style.css',type: 'text/css',rel: 'stylesheet' }
                             ],
                         },
@@ -25,14 +24,23 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get ('/search', ( req, res ) => {
-        let term = req.query['q'];
-        collection.searchCollection (term)
-        .then (data => {
-            res.json(data);
-        });
+    app.get ('/search/:q/:term', ( req, res ) => {
+        let q = req.params['q'];
+        let term = req.params['term'];
+        if ( q === 'all' ) {
+            collection.getAllCollection ()
+            .then ( data => {
+                res.json (data);
+            });
+        } else {
+            collection.searchCollection (term)
+            .then (data => {
+                res.json(data);
+            });
+        }
     });
 
+    
     app.get('/relate', (req, res) => {
         let id = req.query.id;
         let id_parent = req.query.idparent;
@@ -97,20 +105,18 @@ module.exports = function (app, passport) {
             password = req.body.password;
         }
         // usually this would be a database call:
-        console.log(email);
         auth.authLogin ( email, password )
         .then ( result => {
-          console.log('status');
-            // console.log(status);
-            res.json(result);
-        })
-        // error => {
-        //     status = error;
-        // });
-        
-        .catch (error => {
-            // res.json ( error );
-            console.log('asd');
-        }); 
+            if ( !result.err ) {
+                console.log('router');
+                let session = req.session;
+                session.login = true;
+                session.user = result.user;
+                res.json( { login : true, email : result.user.email, token : result.token });
+            } else {
+                console.log('router error');
+                res.json( { login : false });
+            }
+        });
     });
 }

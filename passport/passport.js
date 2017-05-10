@@ -1,6 +1,6 @@
-const elas = require('../elastic/index');
+const elas = require("../elastic/index");
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt-nodejs');
 const passportJWT = require("passport-jwt");
 const Promise = require('bluebird');
 
@@ -17,30 +17,34 @@ module.exports = {
             elas.search ( 'icolor', 'users', email)
             .then ( user => {
                     user = user[0];
-                    console.log(user);
                     if (!user || user === 'undefined') {
-                        reject ({err : "No user found"});
+                        resolve ({err : "No user found"});
                     } else {
-                        console.log('enter');
-                        console.log(password);
                         bcrypt.compare (password, user['password'], ( err, result ) => {
                             if (err) { 
-                                console.log('b');
-                                reject ({err : err});
+                                resolve ({err : err});
                             }
-                            if (!result) {
-                                console.log('c');
-                                reject ({err : "Incorrect Email or Password"});
+                            if ( !result ) {
+                                resolve ({err : "Incorrect Email or Password"});
                             } 
-                            console.log('ggg');
-                            const payload = {id: user.id, group: "customer"};
-                            const token = jwt.sign ( payload, jwtOptions.secretOrKey );  //Ký vào payload sử dụng secretOrKey
-                            resolve ({message: "ok", token: token, user : user});
+                            const payload = {id: user.id};
+                            const options = {
+                                // issuer: 'http://localhost:3001',
+                                subject: 'secret micro service',
+                                expiresIn: 7200 //Expire in 20 seconds
+                            }
+                            jwt.sign ( payload, jwtOptions.secretOrKey, options, (err, token) => {
+                                if (err) {
+                                    resolve ( {err: "Fail to generate jwt token"} );
+                                } else {
+                                    resolve ({message: "ok", token: token, user : user});
+                                }
+                            } );  //Ký vào payload sử dụng secretOrKey
                         });
                     }
-                })
-                .catch (err => {
-                    reject ({err : err});
+                },
+                err => {
+                    resolve ({err : err});
                 });
         });
     }

@@ -9,12 +9,20 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const passportJWT = require("passport-jwt");
 
+const session = require('express-session');
+app.use(session({
+  secret: 'JackCodeHammer', 
+  resave: false, 
+  saveUninitialized: true, 
+  cookie: {secure: false}
+}))
+
 const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 
 let jwtOptions = {
   jwtFromRequest : ExtractJwt.fromAuthHeader(),
-    secretOrKey : 'vequelamvuon'
+  secretOrKey : 'vequelamvuon'
 }
 
 app.use ('/public', express.static ('public'))

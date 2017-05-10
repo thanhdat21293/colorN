@@ -9,7 +9,7 @@ const shortid = require("shortid");
 const data = require("./data.json");
 const async = require("async");
 const coll = require("./models/collection");
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt-nodejs');
 //Create Index
 function createIndex () {
     elas.createIndex("icolor",(err,stt)=>{
@@ -76,10 +76,10 @@ function merge(item, cb){
 
 // Add add Author
 let author = {
-    "id" :  'rJBkgtYyb',
+    "id" :  shortid.generate(),
     // "name" : "The Shepherd's Man",
-    "email" : "blueevn@gmail.com",
-    "password" : "123",
+    "email" : "s3408985@gmail.com",
+    "password" : "rootvn",
     // "description" : "Nodejs programmer",
     // "website" : "https://www.icolor.com",
     "data" :  moment().format("DD/MM/YYYY")
@@ -153,12 +153,12 @@ function addLike () {
 
 // Search ALl for test
 function searchAll (){
-	elas.searchAll("icolor","collection")
+	elas.searchAll("icolor","users")
  .then (data => {
-     console.log(data.length);
+     console.log(data);
  });
 }
-searchAll(); 
+// searchAll(); 
 
 // elas.search("icolor","users", 'blueeasd222@gmail.com')
 // .then (data => {
@@ -169,12 +169,12 @@ searchAll();
 //     console.log(error);
 // });
 // let email = 'blueeasd222@gmail.com';
-// elas.search ( 'icolor', 'collection', 'terr')
-//             .then ( user => {
-//                    console.log(user);
-//                 },
-//                 err => {
-//                     console.log(err);
-//                 });
+elas.search ( 'icolor', 'users', 's3408985@gmail.com')
+            .then ( user => {
+                   console.log(user);
+                },
+                err => {
+                    console.log(err);
+                });
 
 
