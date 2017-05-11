@@ -13,12 +13,12 @@
                                     <i class="fa fa-user" aria-hidden="true"></i> {{ i.author }} 
                                     <!--<i class="fa fa-envelope-o" aria-hidden="true"></i> {{ i.author_email }} -->
                                 </div>
-                                <a class="more_detail" :href="'/detail/' + i.id">More Detail</a>
-                                <!--<div class="box-like-dislike-share">
-                                    <span class="box-like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{ i.like }}</span>
-                                    <span class="box-dislike"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> {{ i.dislike }}</span>
+                                <div class="box-like-dislike-share">
+                                    <span class="box-like" v-on:click.stop.prevent="likedislike('like', 'rJBkgtYyb', i.id)"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{ i.like }}</span>
+                                    <span class="box-dislike" v-on:click.stop.prevent="likedislike('dislike', 'rJBkgtYyb', i.id)"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> {{ i.dislike }}</span>
                                     <span class="share"> <i class="fa fa-share-alt" aria-hidden="true"></i>{{ i.share }}</span>
-                                </div>-->
+                                </div>
+                                <a class="more_detail" :href="'/detail/' + i.id">More Detail</a>
                                 <!--<div class="box-des">{{ i.description }}</div>-->
 						    </div>
 						</div>
@@ -82,12 +82,27 @@
                     url = `/search/all/searchall`;
                 }
                 axios.get( url )
-                .then (response => {
-                    this.dt = response.data;
-                })
-                .catch ( error => {
-                    this.dt = [];
-                });
+                    .then (response => {
+                        this.dt = response.data;
+                    })
+                    .catch ( error => {
+                        this.dt = [];
+                    });
+            },
+            likedislike(action, user_id, collection_id){
+                if(action && user_id && collection_id){
+                    axios.post('/likedislike', {
+                        action: action,
+                        user_id: user_id,
+                        collection_id: collection_id
+                    })
+                        .then (response => {
+                            this.dt = response.data;
+                        })
+                        .catch ( error => {
+                            this.dt = [];
+                        });
+                }
             }
         },
         ready() {

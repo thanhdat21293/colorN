@@ -4,17 +4,18 @@ const convert = require("color-convert");
 const core = require("./core");
 const Promise = require("bluebird");
 const quickSort = require('./quicksort');
+const user = require('./users');
+const likedislike = require('./like_dislike');
 
 class Collection {
     constructor(){}
 
     getAllCollection () {
-        let that = this;
         return new Promise ( (resolve, reject) => {
             elas.searchAll ( "icolor", "collection" )
             .then ( (data) => {
-                async.mapSeries (data, that.getAuthor, (err, result) => {
-                    async.mapSeries (data, that.getLikeAndDislike, (err, result) => {
+                async.mapSeries (data, user.getAuthor, (err, result) => {
+                    async.mapSeries (data, likedislike.getLikeAndDislike, (err, result) => {
                         resolve (result);
                     });
                 });
@@ -22,54 +23,26 @@ class Collection {
         });
     }
 
-    getAuthor (item, cb) {
-        elas.search ("icolor", "users", item['id_user'])
-        .then ( (data) => {
-            item['author'] = data[0]['email'];
-            // item['author_email'] = data[0]['email'];
-            cb (null, item);
-        }, 
-        error => {
-            cb (null, item);
-        });
-    }
-
-    getLikeAndDislike (item, cb) {
-        elas.search ("icolor", "like_dislike", item['id'])
-        .then ( (data) => {
-            let like = data.filter( (obj) => {
-                return obj['status'] === "like";
-            }).length;
-            let dislike = data.length - like; 
-            item['like'] = 0 || like;
-            item['dislike'] = 0 || dislike;
-            cb (null, item);
-        },
-        error => {
-            cb (null, item);
-        });
-    }
-
     getCollection (id) {
-        let that = this;
         return new Promise ( (resolve, reject) => {
             elas.search ("icolor", "collection", id)
             .then ( (data) => {
                 // ES search will return an array
-                that.getAuthor ( data[0] , (err, result) => {
-                    resolve (result);
+                user.getAuthor ( data[0] , (err, result) => {
+                    async.mapSeries (data, likedislike.getLikeAndDislike, (err, result) => {
+                        resolve (result);
+                    })
                 });
             });
         });
     }
 
     searchCollection ( term ) {
-        let that = this;
         return new Promise ( (resolve, reject) => {
             elas.search ("icolor", "collection", term)
             .then ( data => {
-                async.mapSeries (data, that.getAuthor, (err, result) => {
-                    async.mapSeries (data, that.getLikeAndDislike, (err, result) => {
+                async.mapSeries (data, user.getAuthor, (err, result) => {
+                    async.mapSeries (data, likedislike.getLikeAndDislike, (err, result) => {
                         resolve (result);
                     });
                 });
@@ -104,7 +77,7 @@ class Collection {
                             }
                         });
                     });
-                    async.mapSeries ( temp, that.getAuthor, (err, result) => {
+                    async.mapSeries ( temp, user.getAuthor, (err, result) => {
                         resolve (result);
                     });
                 });
@@ -177,7 +150,7 @@ class Collection {
                             resolve ( "Insert succeed" );
                         },
                         error => {
-                            resolve ( "Insert succeed" );
+                            resolve ( "Insert error" );
                         });
                     });
                 }

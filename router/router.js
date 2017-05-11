@@ -1,7 +1,11 @@
 const collection = require ('../models/collection');
 const account = require ('../models/register');
 const auth = require('../passport/passport');
+const moment = require("moment");
+const user = require('../models/users');
+const likedislike = require('../models/like_dislike');
 
+let log = console.log;
 
 module.exports = function (app, passport) {
 
@@ -57,7 +61,7 @@ module.exports = function (app, passport) {
         collection.getCollection (id)
         .then ( (data) => {
             res.render ('detail', {
-                data: { collection: data , name : data.name },
+                data: { collection: data[0] , name : data.name },
                 vue: {
                     head: {
                         title: data['name'],
@@ -70,6 +74,23 @@ module.exports = function (app, passport) {
                 }
             });
         });
+    });
+
+    app.post ('/likedislike', (req, res) => {
+        let status = req.body['action'];
+        let user_id = req.body['user_id'];
+        let collection_id = req.body['collection_id'];
+
+        let like = {
+            "id_collection" : collection_id,
+            "id_user"  : user_id,
+            "status"   : status,
+            "date"     : moment().format("DD/MM/YYYY")
+        }
+
+        likedislike.checkLikeDislike(collection_id, user_id, status)
+
+
     });
 
     app.post ('/register', (req, res) => {
