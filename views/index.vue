@@ -14,8 +14,8 @@
                                     <!--<i class="fa fa-envelope-o" aria-hidden="true"></i> {{ i.author_email }} -->
                                 </div>
                                 <div class="box-like-dislike-share">
-                                    <span class="box-like" v-on:click.stop.prevent="likedislike('like', 'rJBkgtYyb', i.id)"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{ i.like }}</span>
-                                    <span class="box-dislike" v-on:click.stop.prevent="likedislike('dislike', 'rJBkgtYyb', i.id)"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> {{ i.dislike }}</span>
+                                    <span class="box-like" v-on:click.stop.prevent="likedislike('like', 'r1QCo_xkb1', i.id)"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{ i.like }}</span>
+                                    <span class="box-dislike" v-on:click.stop.prevent="likedislike('dislike', 'r1QCo_xkb1', i.id)"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> {{ i.dislike }}</span>
                                     <span class="share"> <i class="fa fa-share-alt" aria-hidden="true"></i>{{ i.share }}</span>
                                 </div>
                                 <a class="more_detail" :href="'/detail/' + i.id">More Detail</a>
@@ -89,18 +89,18 @@
                         this.dt = [];
                     });
             },
-            likedislike(action, user_id, collection_id){
+            likedislike(collection_id, user_id, action ){
                 if(action && user_id && collection_id){
                     axios.post('/likedislike', {
-                        action: action,
+                        collection_id: collection_id,
                         user_id: user_id,
-                        collection_id: collection_id
+                        action: action
                     })
                         .then (response => {
-                            this.dt = response.data;
+                            //this.dt = response.data;
                         })
                         .catch ( error => {
-                            this.dt = [];
+                            //this.dt = [];
                         });
                 }
             }

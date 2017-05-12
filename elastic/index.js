@@ -26,11 +26,26 @@ class elastic {
 		});
 	}
 
+	updateDocument (index, type, doc) {
+        this.elas.update ({
+            index : index,
+            type : type,
+            id : doc['id'],
+            body : doc
+        }, (err, result, status) => {
+        	if (err) {
+
+			}
+            console.log (result);
+        });
+    };
+
 	insertDocument (index, type, doc) {
 		return new Promise ( (resolve, reject) => {
 			this.elas.index ({
 				index : index,
 				type  : type,
+				id : doc['id'],
 				body : doc,
 				refresh : "wait_for"
 			}, ( err, resp, status ) => {
@@ -128,6 +143,62 @@ class elastic {
 						products.push ( product["_source"] );
 					});
 					resolve ( products );
+				}
+			});
+		});
+	}
+
+	search2 ( index, type, term, fields, operator ) {
+		return new Promise( ( resolve, reject ) => {
+			this.elas.search ({
+				index : index,
+				type  : type,
+				body  : {
+					"from"  : 0,
+					"size"  : 50,
+					query   : {
+						"multi_match" : {
+							"query"  	 : term,
+							"type" 	 	 : "cross_fields",
+							"fields" 	 : fields,
+							"tie_breaker" : 0.3,
+							"operator" : operator
+						}
+					}
+				}
+			}, (error, response, status) => {
+				if (error) {
+					console.log(error);
+					reject ( error.message );
+				} else {
+					let products = [];
+					response.hits.hits.forEach ( (product) => {
+						products.push ( product["_source"] );
+					});
+					resolve ( products );
+
+				}
+			});
+		});
+	}
+
+	deleteDocument2 (index, type, id ){
+		return new Promise ( (resolve, reject) => {
+			this.elas.deleteByQuery({
+				index: index,
+				type: type,
+				body : {
+					"query": {
+							"match": {
+								"id": id
+							}
+						}
+				}
+			},function(err,resp,status) {
+				if (err) {
+					reject (err);
+				} else {
+					resolve (resp);
 				}
 			});
 		});

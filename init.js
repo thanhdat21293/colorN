@@ -149,9 +149,9 @@ const bcrypt = require('bcrypt-nodejs');
 //
 // // Add Like & Dislike
 // let like = {
-//     "id_collection" : "SJLSY3B-l-",
-//     "id_user"  : "r1QCo_xkb1",
-//     "status"   : "like",
+//     "id_collection" : "rkBcdCs-gb",
+//     "id_user"  : "rJBkgtYyb",
+//     "status"   : "dislike",
 //     "date"     : moment().format("DD/MM/YYYY")
 // }
 //
@@ -164,13 +164,13 @@ const bcrypt = require('bcrypt-nodejs');
 //  addLike();
 //
 // // Search ALl for test
-// function searchAll (){
-// elas.searchAll("icolor","collection")
-//  .then (data => {
-//      console.log(data);
-//  });
-// }
-// searchAll();
+function searchAll (){
+elas.searchAll("icolor","like_dislike")
+ .then (data => {
+     console.log(data);
+ });
+}
+searchAll();
 //
 // function search (){
 // elas.search("icolor","like_dislike", '["HyVBt2HbeW", "r1QCo_xkb"]')

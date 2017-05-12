@@ -25,18 +25,35 @@ class Likedislike {
     }
 
     checkLikeDislike(collection_id, user_id, status){
-        elas.search ("icolor", "like_dislike", item['id'])
+
+        let fields = [ "id_collection", "id_user" ];
+
+        elas.search2 ("icolor", "like_dislike", '"' + collection_id + ' ' + user_id + '"', fields, "AND")
             .then ( (data) => {
-                let like = data.filter( (obj) => {
-                    return obj['status'] === "like";
-                }).length;
-                let dislike = data.length - like;
-                item['like'] = 0 || like;
-                item['dislike'] = 0 || dislike;
-                cb (null, item);
+                console.log(data)
+                if(data.length > 0){
+                    if(data[0].status === status){
+                        //delete
+                        elas.deleteDocument2("icolor", "like_dislike", "SJLSY3B-l- r1QCo_xkb1")
+                            .then ( (data) => {
+                                console.log('Delete ok')
+                                return 1
+                            },
+                            error => {
+                                console.log('Delete not ok')
+                                return 0
+                            });
+                    }else{
+                        //Change status -> !status
+
+                    }
+                }
+                //cb (null, 'ok');
+                return 1
             },
             error => {
-                cb (null, item);
+                //cb (null, null);
+                return 0
             });
     }
 

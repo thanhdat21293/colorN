@@ -89,7 +89,18 @@ module.exports = function (app, passport) {
         }
 
         likedislike.checkLikeDislike(collection_id, user_id, status)
-
+            .then ( succeed => {
+                status = {
+                    'success' : 'Register succesfull'
+                }
+                res.json( succeed );
+            },
+            failed => {
+                status = {
+                    'error' : 'Email is already used'
+                }
+            });
+            //res.json( status );
 
     });
 
